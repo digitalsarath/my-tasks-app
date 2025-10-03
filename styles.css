@@ -1,0 +1,92 @@
+/* A little custom CSS to complement Tailwind */
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        /* A subtle animation for new tasks appearing on the board */
+        .task-item-enter { animation: slide-in 0.3s ease-out forwards; }
+        @keyframes slide-in {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Visual feedback when dragging a task over a column */
+        .drag-over {
+            background-color: #f0f9ff; /* A light blue to indicate a drop zone */
+            border-color: #3b82f6;
+        }
+        /* Adds a shadow and tilt to the task being dragged for a "lifting" effect */
+        .dragging {
+            opacity: 0.9;
+            transform: rotate(3deg);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.1);
+        }
+        /* Custom scrollbar for a polished feel */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        /* Adds a red asterisk to required form labels */
+        .required-label::after { content: '*'; color: #ef4444; margin-left: 4px; }
+        /* A simple CSS spinner for loading states */
+        .spinner {
+            border: 3px solid #e5e7eb;
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        /* Styling for the currently selected folder in the sidebar */
+        .folder-item.active {
+            background-color: #e0e7ff;
+            color: #4f46e5;
+            font-weight: 600;
+        }
+        /* Styling for the icon picker in the folder modal */
+        .icon-picker-item {
+            border: 2px solid transparent;
+            transition: all 0.2s ease-in-out;
+        }
+        .icon-picker-item.selected {
+            border-color: #4f46e5;
+            background-color: #e0e7ff;
+            transform: scale(1.1);
+        }
+
+        /* --- Sidebar Collapsed Styles --- */
+        /* Hides text when the sidebar is collapsed */
+        #sidebar.is-collapsed .sidebar-text {
+            display: none;
+        }
+        /* Centers icons when the sidebar is collapsed */
+        #sidebar.is-collapsed .folder-item,
+        #sidebar.is-collapsed #open-add-folder-modal-button {
+            justify-content: center;
+        }
+        /* Hides the edit/delete buttons on hover when collapsed */
+        #sidebar.is-collapsed .folder-item .group-hover\:opacity-100 {
+            display: none;
+        }
+        /* Adds a subtle blue ring on focus for better accessibility and UI feedback */
+        *:focus-visible {
+            outline: 2px solid #3b82f6 !important;
+            outline-offset: 2px !important;
+            border-radius: 6px;
+        }
+        /* Extracted inline styles */
+        .inline-style-1 { width: 0% }
+        .inline-style-2 { width: 14px; height: 14px; border-width: 2px; }
+        .inline-style-3 { width: 20px; height: 20px; border-width: 2px; border-top-color: white; }
+
+        .task-item.dragging {
+        opacity: 0.5;
+        background: #f1f5f9;
+        border: 2px dashed #3b82f6;
+        }
+                .task-item.dragging * {
+        opacity: 0.5;
+        }

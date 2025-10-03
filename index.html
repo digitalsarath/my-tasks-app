@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Tasks App</title>
+
+    <!-- Tailwind CSS for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Custom Google Font for a clean look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Canvas Confetti for celebrations! -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+    <!-- Lucide Icons for a huge range of beautiful icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- External Stylehseet File -->
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- External Javascript File -->
+    <script type="module" src="script.js" defer></script>
+</head>
+
+<body class="bg-slate-100 text-slate-800">
+
+    <!-- Main Flex container for Sidebar and App Content -->
+    <div class="flex h-screen">
+        <!-- Sidebar for Folders/Projects -->
+        <aside id="sidebar" class="is-collapsed bg-white border-r border-slate-200 p-4 flex flex-col h-screen sticky top-0 transition-all duration-300 ease-in-out w-20">
+            <!-- Sidebar Header: Contains the "Projects" title, hidden when collapsed -->
+            <div class="flex items-center" id="sidebar-header">
+                 <h2 class="text-lg font-bold text-slate-900 sidebar-text">Projects</h2>
+            </div>
+            <!-- Main navigation for folders -->
+            <nav class="flex-1 space-y-1 overflow-y-auto mt-4">
+                <ul id="folder-list">
+                    <!-- Folder items are dynamically inserted here by JavaScript -->
+                </ul>
+                 <hr class="my-2 border-slate-200">
+                <!-- Static navigation item for the Trash view -->
+                <ul>
+                    <li>
+                        <a href="#" id="trash-view-button" title="Trash" aria-label="View Trashed Items" class="folder-item group flex items-center gap-3 px-3 py-2 rounded-lg transition-colors hover:bg-slate-100" data-folder-id="trash">
+                           <i data-lucide="trash-2" class="w-5 h-5"></i>
+                           <span class="sidebar-text">Trash</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <!-- Button to open the "New Folder" modal -->
+            <button id="open-add-folder-modal-button" title="New Folder" aria-label="Create a new folder" class="w-full mt-4 flex items-center justify-center gap-2 bg-slate-100 text-slate-600 font-semibold py-2 px-3 rounded-lg hover:bg-slate-200 transition-colors">
+                <i data-lucide="folder-plus" class="w-5 h-5"></i>
+                <span class="sidebar-text">New Folder</span>
+            </button>
+        </aside>
+
+        <!-- Main App Container: Holds the header, progress bar, and task board -->
+        <div id="app-container" class="flex-1 flex flex-col overflow-y-auto transition-all duration-300 ease-in-out">
+            
+            <!-- Main App Screen -->
+            <main id="main-app" class="p-4 sm:p-6 w-full">
+                <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
+                    <!-- Header Section -->
+                    <header class="flex flex-col mb-6 border-b border-slate-200 pb-4 gap-4">
+                        <div class="w-full flex justify-between items-start">
+                            <div class="flex items-center gap-2 sm:gap-4">
+                                <!-- Burger menu button to toggle the sidebar -->
+                                <button id="burger-menu-button" aria-label="Toggle menu" class="p-2 -ml-2 text-slate-600 hover:bg-slate-100 rounded-lg">
+                                    <i data-lucide="menu" class="w-6 h-6"></i>
+                                </button>
+                                <!-- Header text: Title and welcome message -->
+                                <div>
+                                    <h1 id="header-title" class="text-2xl sm:text-3xl font-bold text-slate-900">All Tasks</h1>
+                                    <p id="welcome-message" class="text-slate-500">Log in to save your tasks.</p>
+                                </div>
+                            </div>
+                            <!-- Authentication controls: Sign In / Sign Out buttons -->
+                            <div id="auth-controls" class="flex-shrink-0">
+                                <button id="signin-prompt-button" aria-label="Sign In" class="flex items-center gap-2 bg-slate-200 text-slate-700 font-semibold py-2 px-3 sm:px-4 rounded-lg hover:bg-slate-300 transition-colors duration-300">
+                                    <i data-lucide="log-in" class="w-5 h-5"></i>
+                                    <span class="hidden sm:inline">Sign In</span>
+                                </button>
+                                <button id="signout-button" aria-label="Sign Out" class="hidden flex items-center gap-2 bg-slate-200 text-slate-700 font-semibold py-2 px-3 sm:px-4 rounded-lg hover:bg-slate-300 transition-colors duration-300">
+                                    <i data-lucide="log-out" class="w-5 h-5"></i>
+                                    <span class="hidden sm:inline">Sign Out</span>
+                                </button>
+                            </div>
+                        </div>
+                         <!-- Main action buttons: Suggest and Add Task -->
+                         <div id="main-action-buttons" class="flex items-center justify-end gap-2 w-full">
+                            <!-- This button will be dynamically added here by JS if a project is selected -->
+                            <button id="open-ai-suggester-button" aria-label="Suggest Tasks with AI" class="bg-violet-600 text-white font-semibold py-2 px-3 sm:px-4 rounded-lg shadow-md hover:bg-violet-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 flex items-center gap-2">
+                                <i data-lucide="sparkles" class="w-5 h-5"></i>
+                                <span class="hidden sm:inline">Suggest Tasks</span>
+                            </button>
+                            <button id="open-add-task-modal-button" aria-label="Add a new task" class="bg-blue-600 text-white font-semibold py-2 px-3 sm:px-4 rounded-lg shadow-md hover:bg-blue-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center gap-2">
+                                <i data-lucide="plus" class="w-5 h-5"></i>
+                                <span class="hidden sm:inline">Add Task</span>
+                            </button>
+                        </div>
+                    </header>
+                    
+                    <!-- AI Project Summary Section -->
+                    <section id="project-summary-section" class="hidden mb-6 p-4 bg-slate-50 rounded-lg">
+                        <p id="project-summary-text" class="text-slate-700"></p>
+                    </section>
+                    
+                    <!-- Progress Tracker Section -->
+                    <section id="progress-section" class="mb-6">
+                        <div class="flex justify-between items-center mb-2">
+                            <h2 class="text-lg font-semibold text-slate-700">Progress</h2>
+                            <span id="progress-text" class="font-semibold text-slate-700">0%</span>
+                        </div>
+                        <div class="w-full bg-slate-200 rounded-full h-3">
+                            <div id="progress-bar" class="bg-emerald-500 h-3 rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
+                        </div>
+                    </section>
+    
+                    <!-- Task Board Section: The Kanban-style board -->
+                    <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- To Do Column -->
+                        <div id="todo-column" class="bg-slate-50 rounded-xl p-4 border-2 border-transparent transition-colors">
+                            <h3 class="text-xl font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                                <i data-lucide="circle" class="w-6 h-6 text-slate-500"></i>
+                                To Do
+                            </h3>
+                            <ul id="todo-list" class="space-y-3 min-h-[150px]"></ul>
+                        </div>
+                        <!-- In Progress Column -->
+                         <div id="inprogress-column" class="bg-slate-50 rounded-xl p-4 border-2 border-transparent transition-colors">
+                            <h3 class="text-xl font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                                 <i data-lucide="circle-dashed" class="w-6 h-6 text-blue-500"></i>
+                                In Progress
+                            </h3>
+                            <ul id="inprogress-list" class="space-y-3 min-h-[150px]"></ul>
+                        </div>
+                        <!-- Completed Column -->
+                         <div id="completed-column" class="bg-slate-50 rounded-xl p-4 border-2 border-transparent transition-colors">
+                            <h3 class="text-xl font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                                 <i data-lucide="check-circle-2" class="w-6 h-6 text-emerald-500"></i>
+                                Completed
+                            </h3>
+                            <ul id="completed-list" class="space-y-3 min-h-[150px]"></ul>
+                        </div>
+                    </section>
+                     <!-- Empty State: Shown when there are no tasks on the board -->
+                     <div id="empty-state" class="text-center py-16 px-4 hidden">
+                        <svg class="mx-auto h-24 w-24 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <h3 id="empty-state-title" class="text-2xl font-semibold text-slate-800 mt-4">Your board is empty!</h3>
+                        <p id="empty-state-message" class="text-slate-500 mt-2">Add a task to get started.</p>
+                    </div>
+                </div>
+            </main>
+            <!-- Trash View: Shown when the user clicks the "Trash" button in the sidebar -->
+            <div id="trash-view" class="hidden p-4 sm:p-6 w-full">
+                 <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
+                     <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-6 border-b border-slate-200 pb-4">Trash</h1>
+                     
+                     <!-- Trashed Folders Section -->
+                     <div>
+                         <div class="flex items-center gap-3">
+                             <i data-lucide="folder-x" class="w-6 h-6 text-slate-500"></i>
+                             <div>
+                                 <h2 class="text-xl font-semibold text-slate-800">Trashed Folders</h2>
+                                 <p class="text-sm text-slate-500">These folders can be restored or permanently deleted.</p>
+                            </div>
+                         </div>
+                         <ul id="trashed-folders-list" class="space-y-2 mt-4 mb-8">
+                             <!-- Trashed folders are dynamically inserted here -->
+                         </ul>
+                     </div>
+                     
+                     <!-- Trashed Tasks Section -->
+                     <div>
+                         <div class="flex items-center gap-3">
+                            <i data-lucide="file-x" class="w-6 h-6 text-slate-500"></i>
+                             <div>
+                                 <h2 class="text-xl font-semibold text-slate-800">Trashed Tasks</h2>
+                                 <p class="text-sm text-slate-500">These tasks can also be restored or permanently deleted.</p>
+                             </div>
+                         </div>
+                         <ul id="trashed-tasks-list" class="space-y-3 mt-4">
+                             <!-- Trashed tasks are dynamically inserted here -->
+                         </ul>
+                     </div>
+
+                     <!-- Empty Trash State: Shown when the trash is empty -->
+                     <div id="empty-trash-state" class="text-center py-16 px-4 hidden">
+                        <svg class="mx-auto h-24 w-24 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        <h3 class="text-2xl font-semibold text-slate-800 mt-4">The trash is empty</h3>
+                        <p class="text-slate-500 mt-2">Deleted items will appear here.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODALS ===== -->
+
+    <!-- Login Modal -->
+     <div id="login-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 hidden">
+        <div class="bg-white p-8 sm:p-12 rounded-2xl shadow-lg text-center w-full max-w-sm relative">
+            <button id="close-login-modal-button" aria-label="Close login modal" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+            <h1 class="text-3xl font-bold text-slate-900 mb-2">Save Your Progress</h1>
+            <p class="text-slate-500 mb-8">Sign in to sync your tasks across all your devices.</p>
+            <div id="login-error-message" class="hidden text-red-600 bg-red-100 border border-red-300 rounded-lg p-3 mb-6 text-sm"></div>
+            <div class="space-y-4">
+                <button id="google-signin-button" class="w-full flex items-center justify-center gap-3 bg-white border border-slate-300 text-slate-700 font-semibold py-3 px-4 rounded-lg shadow-sm hover:bg-slate-50 transition-colors duration-300">
+                    <img src="https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png" alt="Google Logo" class="h-6">
+                    Continue with Google
+                </button>
+                <button id="github-signin-button" class="w-full flex items-center justify-center gap-3 bg-slate-900 text-white font-semibold py-3 px-4 rounded-lg shadow-sm hover:bg-slate-800 transition-colors duration-300">
+                    <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.168 6.839 9.49.5.092.682-.217.682-.482 0-.237-.009-.868-.014-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.031-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.03 1.595 1.03 2.688 0 3.848-2.338 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.001 10.001 0 0022 12c0-5.523-4.477-10-10-10z" clip-rule="evenodd" /></svg>
+                    Continue with GitHub
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add/Edit Task Modal -->
+    <div id="task-details-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-lg">
+            <form id="task-details-form">
+                <h2 id="modal-title" class="text-2xl font-bold text-slate-900 mb-6">Add New Task</h2>
+                <input type="hidden" id="task-id-input">
+                <div class="space-y-4">
+                    <div>
+                        <label for="task-title-input" class="block text-sm font-medium text-slate-700 required-label">Title</label>
+                        <input type="text" id="task-title-input" required class="mt-1 w-full bg-slate-100 border border-slate-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="task-folder-select" class="block text-sm font-medium text-slate-700">Project / Folder</label>
+                        <select id="task-folder-select" class="mt-1 w-full bg-slate-100 border border-slate-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <!-- Folder options are dynamically populated here -->
+                        </select>
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center">
+                            <label for="task-description-input" class="block text-sm font-medium text-slate-700">Description</label>
+                            <button type="button" id="generate-description-button" title="Generate description with AI" class="hidden flex items-center gap-1 text-xs text-violet-600 font-semibold hover:text-violet-800 transition-colors">
+                                 <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                                 Auto-generate
+                                 <div id="description-spinner" class="spinner hidden" style="width: 14px; height: 14px; border-width: 2px;"></div>
+                            </button>
+                        </div>
+                        <textarea id="task-description-input" rows="3" class="mt-1 w-full bg-slate-100 border border-slate-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="task-start-date-input" class="block text-sm font-medium text-slate-700">Start Date</label>
+                            <input type="datetime-local" id="task-start-date-input" class="mt-1 w-full bg-slate-100 border border-slate-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="task-end-date-input" class="block text-sm font-medium text-slate-700">End Date</label>
+                            <input type="datetime-local" id="task-end-date-input" class="mt-1 w-full bg-slate-100 border border-slate-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-3 mt-8">
+                    <button type="button" id="cancel-task-button" class="bg-slate-200 text-slate-700 font-semibold py-2 px-5 rounded-lg hover:bg-slate-300 transition-colors">Cancel</button>
+                    <button type="submit" id="save-task-button" class="bg-blue-600 text-white font-semibold py-2 px-5 rounded-lg hover:bg-blue-700 transition-colors">Save Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add/Edit Folder Modal -->
+    <div id="folder-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
+            <form id="folder-form">
+                <h2 id="folder-modal-title" class="text-2xl font-bold text-slate-900 mb-6">Create New Folder</h2>
+                <input type="hidden" id="folder-id-input">
+                <div>
+                    <label for="folder-name-input" class="block text-sm font-medium text-slate-700 required-label">Folder Name</label>
+                    <input type="text" id="folder-name-input" required class="mt-1 w-full bg-slate-100 border border-slate-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="mt-4">
+                    <label class="block text-sm font-medium text-slate-700">Choose an Icon</label>
+                    <div id="icon-picker" class="mt-2 grid grid-cols-6 sm:grid-cols-8 gap-2 max-h-48 overflow-y-auto">
+                        <!-- Icons are dynamically populated here -->
+                    </div>
+                </div>
+                <div class="flex justify-end gap-3 mt-8">
+                    <button type="button" id="cancel-folder-button" class="bg-slate-200 text-slate-700 font-semibold py-2 px-5 rounded-lg hover:bg-slate-300 transition-colors">Cancel</button>
+                    <button type="submit" id="save-folder-button" class="bg-blue-600 text-white font-semibold py-2 px-5 rounded-lg hover:bg-blue-700 transition-colors">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- AI Task Suggester Modal -->
+    <div id="ai-suggester-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-2xl">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                    <i data-lucide="sparkles" class="w-7 h-7 text-violet-600"></i>
+                    AI Task Suggester
+                </h2>
+                <button id="close-ai-modal-button" aria-label="Close AI suggester modal" class="text-slate-400 hover:text-slate-600">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <div>
+                <label for="ai-goal-input" class="block text-sm font-medium text-slate-700">What's your goal?</label>
+                <textarea id="ai-goal-input" rows="3" class="mt-1 w-full bg-slate-100 border border-slate-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-violet-500" placeholder="e.g., Launch a personal blog, plan a trip to Japan, or learn to cook Italian food..."></textarea>
+                <button id="generate-suggestions-button" class="mt-4 w-full bg-violet-600 text-white font-semibold py-2.5 px-5 rounded-lg hover:bg-violet-700 transition-colors flex items-center justify-center gap-2">
+                    Generate Suggestions
+                </button>
+            </div>
+            <div id="ai-suggestions-container" class="mt-6">
+                <div id="ai-loading-spinner" class="hidden flex justify-center items-center py-8">
+                    <div class="spinner"></div>
+                </div>
+                <div id="ai-error-message" class="hidden text-red-600 bg-red-100 border border-red-300 rounded-lg p-3 text-sm"></div>
+                <ul id="ai-suggestions-list" class="space-y-2 max-h-64 overflow-y-auto">
+                    <!-- AI suggestions are rendered here -->
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-confirmation-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 hidden z-40">
+        <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
+            <h2 id="delete-modal-title" class="text-2xl font-bold text-slate-900 mb-4">Are you sure?</h2>
+            <p id="delete-modal-text" class="text-slate-600 mb-8">What would you like to do with this item?</p>
+            <div class="flex flex-col sm:flex-row justify-end gap-3">
+                <button type="button" id="cancel-delete-button" class="bg-slate-200 text-slate-700 font-semibold py-2 px-5 rounded-lg hover:bg-slate-300 transition-colors">Cancel</button>
+                <button type="button" id="trash-item-button" class="bg-amber-500 text-white font-semibold py-2 px-5 rounded-lg hover:bg-amber-600 transition-colors">Move to Trash</button>
+                <button type="button" id="delete-permanently-button" class="bg-red-600 text-white font-semibold py-2 px-5 rounded-lg hover:bg-red-700 transition-colors">Delete Permanently</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- All application logic is now embedded here -->
+    
+    <script type="module" src="script_fixed.js"></script>
+</body>
+</html>
